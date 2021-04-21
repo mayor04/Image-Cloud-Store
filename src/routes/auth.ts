@@ -1,13 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ICreateUsers, IUsers, Users } from '../model/users';
+import { ICreateUsers, IUsers, Users} from '../model/users';
 import { variable } from '../config';
 
 const authRouter = express.Router();
 
 authRouter.post('/register', async (req, res) => {
-    var myUser = new Users();
     var body = req.body;
 
     //get name, email, password
@@ -15,13 +14,12 @@ authRouter.post('/register', async (req, res) => {
     var email = body.email;
     var password = body.password;
 
-    //generate id for the user*
-    //
+    //TODO: validate the data 
 
     //check if email is registered*
-    var isRegisterd: null | IUsers = await myUser.exist(email)
+    var isRegisterd: null | IUsers = await Users.exist(email)
     if (isRegisterd) {
-        res.send({ message: 'registered', });
+        res.send({ message: 'registered', user : isRegisterd});
         return;
     }
 
@@ -35,22 +33,65 @@ authRouter.post('/register', async (req, res) => {
         email: email,
         password: hash
     };
-    myUser.registerUser(userData)
+    await Users.registerUser(userData)
 
     //generate jwt* 
     var token = jwt.sign(
-        { username: name, email: email },
+        { email: email },
         variable.secret || 'secret',
         { expiresIn: 60 }
     )
 
-    //add jwt to cookies*
-    //
+    //TODO :add jwt to cookies*
+
+
+    //TODO : send user verification email*
+
+    //send response
     res.send({
         message: 'success',
         token: token,
         data: { username: name, email: email },
     });
+});
+
+authRouter.post('/login',async (req, res)=>{
+    var body = req.body;
+
+    //get email and password
+    var email = body.email;
+    var password = body.password;
+    
+    //get info based on the email
+    var userInfo: null | IUsers = await Users.exist(email);
+    if (!userInfo) {
+        res.send({ message: 'not registered'});
+        return;
+    }
+
+    //compare password
+    //use async instead
+    var match = bcrypt.compareSync(password, userInfo.password);
+    if(!match){
+        res.send({ message: 'Invalid password'});
+    }
+
+    //generate jwt
+    var token = jwt.sign(
+        { email: email },
+        variable.secret || 'secret',
+        { expiresIn: 60 }
+    )
+
+    //TODO :add jwt to cookies*
+
+    //send response
+    res.send({
+        message: 'success',
+        token: token,
+        data: { username: userInfo.username, email: email },
+    });
+
 })
 
 export { authRouter };

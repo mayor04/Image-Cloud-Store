@@ -14,7 +14,7 @@ export interface ICreateUsers{
     password: IUsers["password"]
 }
 
-export class Users {
+class User {
     model: Model<IUsers, {}>;
 
     constructor() {
@@ -43,3 +43,5 @@ export class Users {
         });
     }
 }
+const Users = new User();
+export {Users}

@@ -15,10 +15,9 @@ export async function connectToMongoDb(){
 }
 
 async function userOptions(){
-    var myUsers = new Users();
     // var exi = await myUsers.registerUser({email: 'col@gmail.com',username: 'yam', password: 'dffvrgrg'});
 
-    var exi = await myUsers.exist('col@gmail.com');
+    var exi = await Users.exist('col@gmail.com');
     console.log(exi);
 }
 
