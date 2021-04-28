@@ -3,7 +3,7 @@ dotenv.config()
 
 const variable = {
     port: process.env.PORT,
-    secret: process.env.JWTSECRET
+    secret: process.env.JWTSECRET || 'sammy'
 };
 
 export {variable} 

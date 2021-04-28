@@ -1,5 +1,6 @@
 import mongoose, { model, Model } from 'mongoose';
 import { Schema, Document } from "mongoose";
+import validator from 'validator';
 
 
 export interface IUsers extends Document {
@@ -8,7 +9,7 @@ export interface IUsers extends Document {
     password: string
 }
 
-export interface ICreateUsers{
+export interface ICreateUsers {
     username: IUsers["username"],
     email: IUsers["email"],
     password: IUsers["password"]
@@ -19,9 +20,28 @@ class User {
 
     constructor() {
         var schema = new Schema({
-            username: String,
-            email: String,
-            password: String
+            username: {
+                type: String,
+                required: true,
+                trim: true,
+            },
+            email: {
+                type: String,
+                required: true,
+                trim: true,
+                unique: true,
+                validate: {
+                    validator: (name: string) => validator.isEmail(name),
+                    message: 'Invalid Email'
+                }
+            },
+            password: {
+                type: String,
+                required: true,
+            },
+            tokens: {
+                type: [String]
+            }
         });
         this.model = mongoose.model<IUsers>('Users', schema, 'users');
     }
@@ -36,12 +56,12 @@ class User {
     async registerUser(details: ICreateUsers): Promise<boolean> {
         return new Promise((resolve, reject) => {
             var instance = new this.model(details);
-            instance.save(function(err){
-                if(err) return reject(err);
+            instance.save(function (err) {
+                if (err) return reject(err);
                 resolve(true);
             })
         });
     }
 }
 const Users = new User();
-export {Users}
+export { Users }

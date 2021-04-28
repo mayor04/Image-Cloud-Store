@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import { Schema } from 'mongoose';
 import { Users } from './model/users';
+import { variable } from './config';
 
 // connect();
 export async function connectToMongoDb(){
@@ -12,6 +14,17 @@ export async function connectToMongoDb(){
     var conn = mongoose.connection;
     conn.on('error', console.error.bind(console, 'Error connecting'));
     console.log('connected to mongodb');
+}
+
+signJWT();
+function signJWT(){
+    var token = jwt.sign(
+        { email: 'mayorT' },
+        'secret',
+    )
+
+    var decode = jwt.verify(token, 'secret') as {email:string};
+    console.log(decode.email);
 }
 
 async function userOptions(){

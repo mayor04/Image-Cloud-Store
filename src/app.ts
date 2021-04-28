@@ -2,6 +2,7 @@ import express from 'express';
 import { variable } from './config';
 import { connectToMongoDb } from './conn';
 import { authRouter } from './routes/auth';
+import { verifyToken } from './routes/verify';
 
 const app = express();
 
@@ -15,6 +16,11 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', authRouter);
+app.use(verifyToken)
+
+app.get('/user', (req, res) => {
+    res.send({ message: 'authorized' });
+});
 
 app.listen(variable.port, () => {
     console.log('Router listening on port 3000');
