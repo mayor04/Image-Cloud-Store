@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import { Schema } from 'mongoose';
-import { Users } from './model/users';
+import { UserModel } from './model/users';
 import { variable } from './config';
 
 // connect();
@@ -30,7 +30,7 @@ function signJWT(){
 async function userOptions(){
     // var exi = await myUsers.registerUser({email: 'col@gmail.com',username: 'yam', password: 'dffvrgrg'});
 
-    var exi = await Users.exist('col@gmail.com');
+    var exi = await UserModel.exist('col@gmail.com');
     console.log(exi);
 }
 

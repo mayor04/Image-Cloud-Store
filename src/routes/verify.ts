@@ -1,10 +1,17 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ICreateUsers, IUsers, Users } from '../model/users';
+import { ICreateUsers, IUsers, UserModel } from '../model/users';
 import { variable } from '../config';
 
-export function verifyToken(req: express.Request, res: express.Response, next: any) {
+
+export interface userData{
+    user: IUsers,
+    token: string,
+    uploadUrl?: string,
+}
+
+export async function verifyToken(req: express.Request, res: express.Response, next: any) {
     try {
         //get the token from the header
         var header = req.header('authorization');
@@ -14,9 +21,13 @@ export function verifyToken(req: express.Request, res: express.Response, next: a
         var decode = jwt.verify(token || '', variable.secret) as { email: string };
 
         //get user and add user to the request object
-        var theUser = Users.exist(decode.email);
-        (req as any).userData = theUser;
-        (req as any).userToken = theUser;
+        var theUser = await UserModel.exist(decode.email);
+        var userData: userData = {
+            user: theUser as IUsers,
+            token: token as string,
+        };
+
+        (req as any).userData = userData;
 
         next()
     } catch (err) {

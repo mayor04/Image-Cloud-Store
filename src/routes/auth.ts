@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ICreateUsers, IUsers, Users } from '../model/users';
+import { ICreateUsers, IUsers, UserModel } from '../model/users';
 import { variable } from '../config';
 
 const authRouter = express.Router();
@@ -18,9 +18,14 @@ authRouter.post('/register', async (req, res) => {
         //TODO: validate the data 
 
         //check if email is registered*
-        var isRegisterd: null | IUsers = await Users.exist(email)
+        var isRegisterd: null | IUsers = await UserModel.exist(email)
         if (isRegisterd) {
-            res.send({ message: 'registered', user: isRegisterd });
+            res.send({
+                message: 'already registered',
+                data: {
+                    email: isRegisterd.email
+                }
+            });
             return;
         }
 
@@ -34,7 +39,7 @@ authRouter.post('/register', async (req, res) => {
             email: email,
             password: hash
         };
-        await Users.registerUser(userData)
+        await UserModel.registerUser(userData)
 
         //generate jwt* 
         var token = getToken(email)
@@ -54,7 +59,7 @@ authRouter.post('/register', async (req, res) => {
     } catch (err) {
         console.log('An error occured' + err);
         res.status(404).send({
-            message: 'error occured',
+            message: 'error',
             error: '' + err
         });
     }
@@ -69,7 +74,7 @@ authRouter.post('/login', async (req, res) => {
         var password = body.password;
 
         //get info based on the email
-        var userInfo: null | IUsers = await Users.exist(email);
+        var userInfo: null | IUsers = await UserModel.exist(email);
         if (!userInfo) {
             res.send({ message: 'not registered' });
             return;
@@ -97,7 +102,7 @@ authRouter.post('/login', async (req, res) => {
     catch (err) {
         console.log('An error occured' + err);
         res.status(404).send({
-            message: 'error occured',
+            message: 'error',
             error: '' + err
         });
     }
@@ -108,7 +113,7 @@ function getToken(email: string): string {
     return jwt.sign(
         { email: email },
         variable.secret || 'secret',
-        { expiresIn: 60 }
+        { expiresIn: 60*60*24 }
     )
 }
 

@@ -7,12 +7,14 @@ export interface IUsers extends Document {
     username: string,
     email: string,
     password: string
+    images: { url: string, date: number }[]
 }
 
 export interface ICreateUsers {
     username: IUsers["username"],
     email: IUsers["email"],
     password: IUsers["password"]
+    images?: IUsers["images"]
 }
 
 class User {
@@ -39,8 +41,8 @@ class User {
                 type: String,
                 required: true,
             },
-            tokens: {
-                type: [String]
+            images: {
+                type: [{ url: String, date: Number }]
             }
         });
         this.model = mongoose.model<IUsers>('Users', schema, 'users');
@@ -54,8 +56,22 @@ class User {
     }
 
     async registerUser(details: ICreateUsers): Promise<boolean> {
+        var instance = new this.model(details);
+        return this.save(instance);
+    }
+
+    async addImageUrl(data: { email: string, url: string }) {
+        var instance = await this.model.findOne({ email: data.email });
+
+        if (instance == null) {
+            throw new Error('User not found');
+        }
+        instance.images.push({ url: data.url, date: Date.now() })
+        return this.save(instance);
+    }
+
+    async save(instance: IUsers): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            var instance = new this.model(details);
             instance.save(function (err) {
                 if (err) return reject(err);
                 resolve(true);
@@ -63,5 +79,5 @@ class User {
         });
     }
 }
-const Users = new User();
-export { Users }
+const UserModel = new User();
+export { UserModel }
