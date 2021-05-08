@@ -55,11 +55,13 @@ class User {
         return user;
     }
 
+    /**This registers the user while validating the info */
     async registerUser(details: ICreateUsers): Promise<boolean> {
         var instance = new this.model(details);
         return this.save(instance);
     }
 
+    /**Call this method to upload url and timestamp of the image */
     async addImageUrl(data: { email: string, url: string }) {
         var instance = await this.model.findOne({ email: data.email });
 
@@ -70,6 +72,18 @@ class User {
         return this.save(instance);
     }
 
+    //TODO create a function that returns a range from a particular time
+    /**Return an list containing url and timestamp of all the images*/
+    async getAllImages(email: string):Promise<IUsers["images"]>{
+        var instance = await this.model.findOne({email:email});
+
+        if (instance == null) {
+            throw new Error('User not found');
+        }
+        
+        return instance.images;
+    }
+
     async save(instance: IUsers): Promise<boolean> {
         return new Promise((resolve, reject) => {
             instance.save(function (err) {
@@ -78,6 +92,7 @@ class User {
             })
         });
     }
+
 }
 const UserModel = new User();
 export { UserModel }

@@ -7,6 +7,7 @@ import { variable } from '../config';
 const authRouter = express.Router();
 
 authRouter.post('/register', async (req, res) => {
+    console.log('Register request received')
     try {
         var body = req.body;
 
@@ -66,6 +67,7 @@ authRouter.post('/register', async (req, res) => {
 });
 
 authRouter.post('/login', async (req, res) => {
+    console.log('login request received')
     try {
         var body = req.body;
 

@@ -4,17 +4,16 @@ import path from 'path';
 
 import { UserModel } from '../model/users';
 import { userData } from './verify';
+import { getUserFromRequest } from './verify';
 
 const fileRouter = express.Router();
 const storage = multer.diskStorage({
 
     destination: (req, file, cb) => {
-        
-
         cb(null, 'upload/');
     },
     filename: (req, file, cb) => {
-        var userData: userData = (req as any).userData
+        var userData = getUserFromRequest(req);
         var name = userData.user.id +'-'+file.originalname
         userData.uploadUrl = name;
 
@@ -26,7 +25,7 @@ const upload = multer({ dest: 'upload/' , storage: storage});
 fileRouter.post('/upload', upload.single('image'),async (req, res) => {
 
     try {
-        var userData: userData = (req as any).userData
+        var userData = getUserFromRequest(req);
 
         await UserModel.addImageUrl({
             email: userData.user.email,
@@ -40,6 +39,24 @@ fileRouter.post('/upload', upload.single('image'),async (req, res) => {
                 email: userData.user.email,
                 url: userData.uploadUrl 
             },
+        });
+
+    } catch (err) {
+        console.log('An error occured' + err);
+        res.status(404).send({
+            message: 'error',
+            error: '' + err
+        });
+    }
+})
+
+fileRouter.get('/get-all-images', (req, res) =>{
+    try {
+        var userData = getUserFromRequest(req);
+        
+        res.status(200).send({
+            message: 'success',
+            imagesData: userData.user.images,
         });
 
     } catch (err) {

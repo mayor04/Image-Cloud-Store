@@ -11,6 +11,11 @@ export interface userData{
     uploadUrl?: string,
 }
 
+export function getUserFromRequest(req:any): userData{
+    var userData: userData = (req as any).userData
+    return userData
+}
+
 export async function verifyToken(req: express.Request, res: express.Response, next: any) {
     try {
         //get the token from the header

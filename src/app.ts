@@ -22,10 +22,10 @@ app.get('/', (req, res) => {
 app.use('/auth', authRouter);
 
 //for authorization
-app.use(verifyToken)
+app.use(verifyToken);
 
 //for handling file uploads
-app.use('/', fileRouter)
+app.use('/', fileRouter);
 
 app.get('/user', (req, res) => {
     res.send({ message: 'authorized' });
